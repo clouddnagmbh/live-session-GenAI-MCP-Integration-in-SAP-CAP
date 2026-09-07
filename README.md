@@ -35,23 +35,58 @@ no filter demo returns an empty list. The database deploys with
 
 ## Branches
 
-| Branch | Demo | Needs SAP AI Core? |
-|---|---|---|
-| `main` | base app | no |
-| `01-recommendations-mock` | RPT-1 field recommendations via `@cap-js/ai` | no (mock) |
-| `02-recommendations-control` | `@UI.RecommendationState` — and what *really* leaves the system | no (mock) |
-| `03-aicore-service` | `AICore` as a CAP service (Calesi pattern) | code only |
-| `04-genai-orchestration` | a real generative LLM call via SAP Cloud SDK for AI | code + local mock |
-| `05-vector-rag` | `cds.Vector` + similarity search | no |
-| `06-mcp-basics` | expose the service via `@mcp`, explore with MCP Inspector | no |
-| `07-mcp-query` | `describe` / `query` in CQL **and** CQN, TOON, row limits | no |
-| `08-mcp-actions` | writes via unbound actions, the `call` tool | no |
-| `09-mcp-security` | `@requires` / `@restrict` / `@cds.api.ignore`, tailored projections | no |
-| `10-agent-clients` | autowiring into Claude Code; manual VS Code config | no |
-| `11-genai-mcp-together` | one service, two consumers | no |
+Each branch carries its own `docs/<branch-name>.md` with the exact commands, the
+`verify:` checks, and what the official docs get wrong.
 
-**No BTP entitlement is required for any demo.** Branches that can use real SAP
-AI Core say so and ship a local path that works without it.
+### Track A — GenAI
+
+| Branch | Demo | Runs offline? |
+|---|---|---|
+| `01-recommendations-mock` | SAP-RPT-1 field recommendations via `@cap-js/ai` — one `npm add`, zero handler code | yes (mock) |
+| `02-recommendations-control` | `@UI.RecommendationState`, and proof it is **not** a privacy control | yes (mock) |
+| `03-aicore-service` | `AICore` as a CAP service; a hand-crafted RPT-1 call | yes (predictions) |
+| `04-genai-orchestration` | a **real generative call** via SAP Cloud SDK for AI, behind a mockable CAP service | yes (local impl) |
+| `05-vector-rag` | `cds.Vector` + similarity search + a full RAG chain | yes |
+
+### Track B — MCP
+
+| Branch | Demo | Runs offline? |
+|---|---|---|
+| `06-mcp-basics` | expose the service via `@mcp`; explore it with `mcp-rpc.sh` | yes |
+| `07-mcp-query` | `describe` / `query` in CQL **and** CQN, TOON, row limits | yes |
+| `08-mcp-actions` | writes via unbound actions, the `call` tool | yes |
+| `09-mcp-security` | `@requires` / `@restrict` / `@cds.api.ignore`, tailored projections | yes |
+| `10-agent-clients` | autowiring into Claude Code; manual VS Code / Copilot config | yes |
+| `11-genai-mcp-together` | one service, two consumers — an agent invoking CAP's own RAG | yes |
+
+**No BTP entitlement is required for any demo.** Every branch runs offline; the
+cloud paths are documented and, where possible, wired so that switching to them
+is a profile change rather than a code change.
+
+## What the upstream exercises get wrong
+
+This repo started as a verification of SAP's `recap2026` exercises 08 and 09.
+The corrections are load-bearing, not cosmetic:
+
+| Claim | Reality |
+|---|---|
+| MCP tools are `describe`, `query`, `call_action` | `call_action` was renamed **`call`** in `@cap-js/mcp` 1.3.0 and appears nowhere in shipped code. And `call` only exists once the service has an unbound action |
+| `query` takes `entity` / `select` / `where` / `limit` | Default is `format: "cql"` — one `cql` string, `additionalProperties: false`. The exercise's payload fails Zod validation |
+| `cds.mcp.toon_format: false` gives JSON | Removed in 1.4.2. TOON is unconditional; JSON only via `structuredContent` |
+| MCP Inspector: "Transport Type" → "Via Proxy" → "Connect" | That is the v1 UI. `npx` gives 2.5.0, needs Node ≥ 22.19.0, and `--transport http` is mandatory |
+| `@UI.RecommendationState: 0` keeps a field out of the payload | It is dropped as a prediction *target* but **still sent** to SAP AI Core |
+| "You should see a message indicating that the AI plugin is active" | The plugin logs nothing — not on startup, not on mock fallback |
+| `claude "prompt"` | Opens an interactive session and never exits. Use `claude -p` |
+| `annotate … with @odata @hcql @mcp` | `@cap-js/hcql` does not exist on npm; HCQL ships inside `@sap/cds` |
+
+Two problems are ours to report upstream, found by building this repo:
+
+- **`@cds.api.ignore` on an element is not access control** in MCP's default
+  `cql` mode — hidden from `describe`, still returned by `query`, while OData and
+  `cqn` mode both refuse it. See `docs/09-mcp-security.md`.
+- **Querying AI Core admin entities with no binding terminates the CAP
+  process** — an uncaught `TypeError` in `AICoreService._getToken()`, not a 500.
+  See `docs/03-aicore-service.md`.
 
 ## Quick start
 
@@ -67,6 +102,8 @@ Then open:
 | Service index | http://localhost:4004 |
 | Fiori preview (list report) | http://localhost:4004/$fiori-preview/TravelService/Travels |
 | OData | http://localhost:4004/odata/v4/travel/Travels |
+| MCP (full service) | `POST http://localhost:4004/mcp/travel` (from branch `06`) |
+| MCP (curated agent surface) | `POST http://localhost:4004/mcp/travel-agent` (from branch `09`) |
 
 Local auth uses CAP's mocked users — `alice` (role `admin`) with an empty
 password, i.e. `Authorization: Basic YWxpY2U6`.
@@ -96,4 +133,18 @@ db/data/*.csv        deterministic seed data (generated, committed)
 srv/travel-service.cds   the service
 app/annotations.cds  draft + value helps  <- gates the AI recommendations feature
 app/fiori.cds        Fiori elements UI annotations
+docs/<branch>.md     one per branch: commands, verify checks, doc corrections
+mcp-rpc.sh           minimal MCP client (branch 06+) -- no Inspector needed
+```
+
+## Verifying MCP without the Inspector
+
+`mcp-rpc.sh` posts one JSON-RPC call and unwraps the SSE frame. No download, no
+Node version floor, fully deterministic — the safest thing to run on stage:
+
+```bash
+./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | jq -r '.result.tools[].name'
+
+MCP_USER=viewer ./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+MCP_URL=http://localhost:4004/mcp/travel-agent ./mcp-rpc.sh '…'
 ```
