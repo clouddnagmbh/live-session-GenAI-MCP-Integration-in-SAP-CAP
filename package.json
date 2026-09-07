@@ -79,8 +79,8 @@
       }
     },
     "mcp": {
-      "autowire": false,
-      "format": "cql"
+      "format": "cql",
+      "autowire": false
     }
   }
 }
