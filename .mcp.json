@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "cds-travel": {
+      "type": "http",
+      "url": "http://localhost:4004/mcp/travel",
+      "headers": { "Authorization": "Basic YWxpY2U6" }
+    },
+    "cds-travel-agent": {
+      "type": "http",
+      "url": "http://localhost:4004/mcp/travel-agent",
+      "headers": { "Authorization": "Basic YWxpY2U6" }
+    }
+  }
+}
