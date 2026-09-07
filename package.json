@@ -50,6 +50,29 @@
           "model": "llm/LLM",
           "kind": "llm-aicore"
         }
+      },
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "alice": {
+            "roles": [
+              "travel-admin"
+            ]
+          },
+          "agent": {
+            "roles": [
+              "travel-agent"
+            ]
+          },
+          "viewer": {
+            "roles": [
+              "travel-viewer"
+            ]
+          },
+          "nobody": {
+            "roles": []
+          }
+        }
       }
     },
     "mcp": {
