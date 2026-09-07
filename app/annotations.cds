@@ -6,6 +6,10 @@ using { TravelService } from '../srv/travel-service';
 annotate TravelService.Travels with @odata.draft.enabled;
 annotate TravelService.Travels with @Common.SemanticKey: [ID];
 
+// ID is assigned by the service (see srv/travel-service.js), so Fiori Elements
+// must not prompt for it in the Create dialog.
+annotate TravelService.Travels with { ID @Core.Computed };
+
 //
 // Value helps.
 //
