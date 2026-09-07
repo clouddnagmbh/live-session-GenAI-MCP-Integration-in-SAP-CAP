@@ -112,6 +112,19 @@ No UI5 application is generated: CAP 10's built-in `$fiori-preview` serves a
 full Fiori elements list report and object page straight from the annotations
 in `app/`. That keeps the UI out of the branch diffs entirely.
 
+## Maintaining the chain
+
+The branches form a linear chain, so a change to `main` needs re-stacking:
+
+```bash
+./rebase-chain.sh
+```
+
+It rebases each branch onto its predecessor, using each branch's **own first
+parent** as the base. Do not substitute `git merge-base` there — once the parent
+branch has been rewritten the merge base moves backwards and the parent's commit
+gets replayed twice, which conflicts on `package.json`. (Learned the hard way.)
+
 ## Prerequisites
 
 ```
