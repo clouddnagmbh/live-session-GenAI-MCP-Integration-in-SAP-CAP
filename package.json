@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@cap-js/ai": "1.1.0",
+    "@cap-js/mcp": "1.4.3",
     "@sap-ai-sdk/orchestration": "2.15.0",
     "@sap/cds": "10.0.6"
   },
@@ -50,6 +51,9 @@
           "kind": "llm-aicore"
         }
       }
+    },
+    "mcp": {
+      "autowire": false
     }
   }
 }
