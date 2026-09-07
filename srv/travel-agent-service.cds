@@ -41,3 +41,26 @@ service TravelAgentService {
 }
 
 annotate TravelAgentService with @cds.query.limit: { default: 20, max: 100 };
+
+//
+// The convergence: a GENERATIVE capability exposed as a governed CAP operation.
+//
+// The agent does not generate the recommendation. CAP does — behind an unbound
+// function, with our data, our projection, our authorization and our prompt.
+// The agent just calls a tool.
+//
+extend service TravelAgentService with {
+
+  /**
+   * Recommend a travel agency for a free-text wish.
+   * Reads the agencies this caller is allowed to see, puts them in the prompt
+   * and asks the LLM to choose one. The prompt is built by CAP, not by the
+   * agent, so the caller never decides what the model gets to see.
+   */
+  function recommendAgency(wish : String) returns {
+    wish   : String;
+    answer : String;
+    model  : String;
+    mocked : Boolean;
+  };
+}
