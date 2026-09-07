@@ -49,3 +49,24 @@ annotate TravelService.TravelAgencies with { Name @Common.Text: Name; };
 annotate TravelService.Customers with {
   ID @Common.Text: LastName @Common.TextArrangement: #TextOnly;
 };
+
+//
+// Recommendation control — @UI.RecommendationState.
+//
+// WARNING: this is NOT a data-privacy control, despite what the plugin's own
+// README claims. See BRANCH.md. `: 0` removes a field from the prediction
+// TARGETS only; the field is still sent to SAP AI Core in the context rows.
+//
+annotate TravelService.Travels with {
+  // opt OUT: Customer is no longer a prediction target
+  Customer   @UI.RecommendationState: 0;
+
+  // DYNAMIC: no Agency recommendation for expensive travels.
+  // Caveat: the flag is one object shared across the whole response, so in a
+  // LIST read a single row over the threshold suppresses Agency for every row.
+  Agency     @UI.RecommendationState: (TotalPrice > 3000 ? 0 : 1);
+
+  // opt IN for a scalar with no value help -> RPT-1 'regression'.
+  // New in 1.1.0. Fiori Elements does NOT render these, so verify via OData.
+  BookingFee @UI.RecommendationState;
+};
