@@ -121,9 +121,23 @@ The branches form a linear chain, so a change to `main` needs re-stacking:
 ```
 
 It rebases each branch onto its predecessor, using each branch's **own first
-parent** as the base. Do not substitute `git merge-base` there — once the parent
-branch has been rewritten the merge base moves backwards and the parent's commit
-gets replayed twice, which conflicts on `package.json`. (Learned the hard way.)
+parent** as the base.
+
+Two invariants it relies on, both learned the hard way:
+
+1. **One commit per branch.** The script uses `<branch>^` as the rebase base, so
+   a second commit on a branch makes it silently drop the first. Amend instead of
+   adding commits, and squash if you slip:
+   `git reset --soft <branch>~2 && git commit`.
+2. **Do not substitute `git merge-base`.** Once the parent branch has been
+   rewritten, the merge base moves backwards and the parent's commit is replayed
+   a second time — which conflicts on `package.json`.
+
+Check the invariant before running it:
+
+```bash
+git log --oneline main..11-genai-mcp-together | wc -l   # must equal the branch count
+```
 
 ## Prerequisites
 
