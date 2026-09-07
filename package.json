@@ -1,14 +1,15 @@
 {
   "name": "gen-ai-mcp",
   "version": "1.0.0",
-  "description": "GenAI & MCP Integration in SAP CAP — live session demos",
+  "description": "GenAI & MCP Integration in SAP CAP \u2014 live session demos",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22.19.0"
   },
   "dependencies": {
-    "@sap/cds": "10.0.6"
+    "@sap/cds": "10.0.6",
+    "@cap-js/ai": "1.1.0"
   },
   "devDependencies": {
     "@cap-js/sqlite": "3.0.2"
@@ -21,6 +22,11 @@
   "cds": {
     "features": {
       "assert_integrity": "DB"
+    },
+    "log": {
+      "levels": {
+        "@cap-js/ai": "debug"
+      }
     }
   }
 }
