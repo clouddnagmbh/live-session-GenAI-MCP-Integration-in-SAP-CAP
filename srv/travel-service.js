@@ -1,4 +1,5 @@
 import cds from '@sap/cds'
+import travelActions from './travel-actions.js'
 
 /**
  * Assigns the next Travel ID when a new draft is created, so the Fiori
@@ -18,6 +19,7 @@ export default class TravelService extends cds.ApplicationService {
       req.data.ID = Math.max(active?.maxID ?? 0, draft?.maxID ?? 0) + 1
     })
 
+    travelActions.call(this)
     return super.init()
   }
 }
