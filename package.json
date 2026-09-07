@@ -53,7 +53,8 @@
       }
     },
     "mcp": {
-      "autowire": false
+      "autowire": false,
+      "format": "cql"
     }
   }
 }
