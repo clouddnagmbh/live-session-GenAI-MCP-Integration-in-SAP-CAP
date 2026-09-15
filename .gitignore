@@ -20,3 +20,6 @@ mta_archives/
 
 # local db
 db/*.sqlite
+
+# presentation deck (local only)
+deck/
