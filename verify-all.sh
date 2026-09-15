@@ -11,7 +11,7 @@ BRANCHES=(main 01-recommendations-mock 02-recommendations-control 03-aicore-serv
   09-mcp-security 10-agent-clients 11-genai-mcp-together)
 
 for b in "${BRANCHES[@]}"; do
-  git checkout -q "$b" 2>/dev/null
+  git checkout -q "$b" || { printf '%-28s CHECKOUT FAIL (dirty tree?)\n' "$b"; continue; }
   npm ci --silent >/dev/null 2>&1
   if ! npx cds compile db srv app --to csn >/dev/null 2>/tmp/ce.txt; then
     printf '%-28s COMPILE FAIL: %s\n' "$b" "$(head -1 /tmp/ce.txt)"; continue
