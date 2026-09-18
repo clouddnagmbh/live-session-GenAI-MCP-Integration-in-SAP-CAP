@@ -46,7 +46,6 @@ Each branch carries its own `docs/<branch-name>.md` with the exact commands, the
 | `02-recommendations-control` | `@UI.RecommendationState`, and proof it is **not** a privacy control | yes (mock) |
 | `03-aicore-service` | `AICore` as a CAP service; a hand-crafted RPT-1 call | yes (predictions) |
 | `04-genai-orchestration` | a **real generative call** via SAP Cloud SDK for AI, behind a mockable CAP service | yes (local impl) |
-| `05-vector-rag` | `cds.Vector` + similarity search + a full RAG chain | yes |
 
 ### Track B — MCP
 
@@ -57,7 +56,7 @@ Each branch carries its own `docs/<branch-name>.md` with the exact commands, the
 | `08-mcp-actions` | writes via unbound actions, the `call` tool | yes |
 | `09-mcp-security` | `@requires` / `@restrict` / `@cds.api.ignore`, tailored projections | yes |
 | `10-agent-clients` | autowiring into Claude Code; manual VS Code / Copilot config | yes |
-| `11-genai-mcp-together` | one service, two consumers — an agent invoking CAP's own RAG | yes |
+| `11-genai-mcp-together` | one service, two consumers — an agent invoking a CAP-owned generative capability | yes |
 
 **No BTP entitlement is required for any demo.** Every branch runs offline; the
 cloud paths are documented and, where possible, wired so that switching to them
