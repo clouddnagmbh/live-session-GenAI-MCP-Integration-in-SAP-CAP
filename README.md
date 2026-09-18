@@ -115,13 +115,12 @@ in `app/`. That keeps the UI out of the branch diffs entirely.
 ## Maintaining the chain
 
 The branches form a linear chain, so a change to `main` needs re-stacking:
+rebase each branch onto its predecessor, using each branch's **own first
+parent** as the base:
 
 ```bash
-./rebase-chain.sh
+git rebase --onto <predecessor> <branch>^ <branch>
 ```
-
-It rebases each branch onto its predecessor, using each branch's **own first
-parent** as the base.
 
 Two invariants it relies on, both learned the hard way:
 
