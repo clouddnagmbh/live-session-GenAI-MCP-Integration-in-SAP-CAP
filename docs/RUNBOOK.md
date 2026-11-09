@@ -1,8 +1,8 @@
 # Runbook — GenAI & MCP Integration in SAP CAP (120 min, November 2026)
 
-Deck: `GenAI_MCP_Integration_in_SAP_CAP_2026-11.pptx` (74 slides). Every demo
-slide carries the same four lines in its speaker notes: commands, payoff,
-fallback, reset. This file is the long form.
+Deck: `GenAI_MCP_Integration_in_SAP_CAP_2026-11.pptx` (74 slides, no speaker
+notes). The short form is the HTML runbook next to the deck in Documents; this
+file is the long form.
 
 ## Pre-flight (the evening before)
 
