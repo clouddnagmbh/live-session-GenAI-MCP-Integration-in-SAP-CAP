@@ -1,6 +1,6 @@
 # Runbook — GenAI & MCP Integration in SAP CAP (120 min, November 2026)
 
-Deck: `GenAI_MCP_Integration_in_SAP_CAP_2026-11.pptx` (74 slides, no speaker
+Deck: `GenAI_MCP_Integration_in_SAP_CAP_2026-11.pptx` (73 slides, no speaker
 notes). The short form is the HTML runbook next to the deck in Documents; this
 file is the long form.
 
@@ -30,10 +30,9 @@ earlier branches.
 |---|---|---|---|
 | 0–10 | 1 · CDS model as your AI contract | 8–15 | main |
 | 10–50 | 2 · SAP-RPT-1 and generative AI (Demos 1–3) | 16–40 | 01 02 03 04 |
-| 50–57 | break (slide 41) | 41 | checkout 06 meanwhile |
-| 57–107 | 3 · MCP, agents and governance (Demos 4–8) | 42–65 | 06 07 08 09 10 11 12 |
-| 107–110 | summary + resources | 66–72 | — |
-| 110–120 | Q&A | 73–74 | — |
+| 50–105 | 3 · MCP, agents and governance (Demos 4–8) | 41–64 | 06 07 08 09 10 11 12 |
+| 105–110 | summary + resources | 65–71 | — |
+| 110–120 | Q&A | 72–73 | — |
 
 Marquee beats: Demo 2 payload (~30), Demo 3 profile switch (~45), Demo 5
 validation error (~70), Demo 6 leak (~85), Demo 8 agent (~100).
@@ -75,17 +74,17 @@ CDS_ENV=hybrid cds serve        # same curl → 502 from the real SDK
 
 Payoff: "Same code, one profile apart." Fallback: slide 38.
 
-## Demo 4 — slide 44 · branch 06
+## Demo 4 — slide 43 · branch 06
 
 ```bash
 ./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | jq -r '.result.tools[].name'   # describe, query
 curl -s -o /dev/null -w '%{http_code}\n' -u alice: http://localhost:4004/mcp/travel                       # 405
 ```
 
-Fallback: slide 45. Inspector (optional, needs network):
+Fallback: slide 44. Inspector (optional, needs network):
 `npx @modelcontextprotocol/inspector --server-url http://localhost:4004/mcp/travel --transport http --header "Authorization: Basic YWxpY2U6"`
 
-## Demo 5 — slide 47 · branch 07
+## Demo 5 — slide 46 · branch 07
 
 ```bash
 ./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"query","arguments":{"entity":"Travels","select":[{"ref":["ID"]}],"limit":5}}}'
@@ -93,10 +92,10 @@ Fallback: slide 45. Inspector (optional, needs network):
 ./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"query","arguments":{"cql":"SELECT from Travels { ID, Description, Agency.Name as Agency } where Agency.City = '"'"'Vienna'"'"' limit 3"}}}'
 ```
 
-Payoff: "The schema is the truth." Fallback: slide 48.
+Payoff: "The schema is the truth." Fallback: slide 47.
 If someone asks for CQN mode: `CDS_MCP_FORMAT=cqn cds watch` and the first call works.
 
-## Demo 6 — slide 53 · branch 09
+## Demo 6 — slide 52 · branch 09
 
 ```bash
 for u in alice agent viewer; do MCP_USER=$u ./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | jq -c '[.result.tools[].name]'; done
@@ -106,9 +105,9 @@ curl -s -u alice: 'http://localhost:4004/odata/v4/travel/Customers?$select=ID,Em
 MCP_URL=http://localhost:4004/mcp/travel-agent ./mcp-rpc.sh '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"describe","arguments":{}}}'
 ```
 
-Payoff: "Hidden is not denied." Fallback: slides 54–56.
+Payoff: "Hidden is not denied." Fallback: slides 53–55.
 
-## Demo 7 — slide 58 · branch 10
+## Demo 7 — slide 57 · branch 10
 
 ```bash
 jq -c '.mcpServers | keys' ~/.claude.json
@@ -120,9 +119,9 @@ cp ~/.claude.json.backup ~/.claude.json
 ```
 
 Payoff: "Zero configuration — and it edited my home directory to get there."
-Fallback: slides 59–60. VS Code (slide 60) is a screenshot; do not switch apps.
+Fallback: slides 58–59. VS Code (slide 59) is a screenshot; do not switch apps.
 
-## Demo 8 — slide 63 · branch 12
+## Demo 8 — slide 62 · branch 12
 
 ```bash
 ./a2a-send.sh "list three travels with their agency" | jq -r '.result.status.message.parts[0].text'
@@ -134,7 +133,7 @@ A2A_USER=nobody ./a2a-send.sh "hi"                   # -32003 Forbidden
 Optional: http://localhost:4004/a2a/travel-agent/preview/ (Alpha chat UI) and
 the **Agents** section on http://localhost:4004. Payoff: "The service we
 curated for other people's agents is now an agent itself — and it runs as the
-caller." Fallback: slide 64.
+caller." Fallback: slide 63.
 
 Do **not** switch to `llm: auto` on stage unless you want to show that it reads
 `~/.claude/settings.json`; it resolves to a real Anthropic endpoint on this
